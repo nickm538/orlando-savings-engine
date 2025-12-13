@@ -1,9 +1,14 @@
 const axios = require('axios');
 const { RateLimiter } = require('limiter');
 
-// Hardcoded SerpApi API Key
-const SERP_API_KEY = '80fc40554b48df07eec794aaf3e97bc8d62213e75d72110e402e0aef03a2cda6';
+// Load API key from environment variable (SECURE)
+const SERP_API_KEY = process.env.SERP_API_KEY;
 const BASE_URL = 'https://serpapi.com/search';
+
+// Validate API key exists
+if (!SERP_API_KEY) {
+  console.warn('⚠️ WARNING: SERP_API_KEY environment variable is not set. SerpApi calls will fail.');
+}
 
 // Rate limiter: 250 calls per month = ~8 calls per day
 const limiter = new RateLimiter({
@@ -21,6 +26,10 @@ class SerpApiService {
    * Generic API call with rate limiting
    */
   async makeAPICall(params) {
+    if (!this.apiKey) {
+      throw new Error('SERP_API_KEY environment variable is not configured');
+    }
+    
     try {
       await limiter.removeTokens(1);
       
