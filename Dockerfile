@@ -1,23 +1,4 @@
-# Multi-stage build for full-stack deployment
-# Stage 1: Build frontend
-FROM node:18-alpine AS frontend-build
-
-WORKDIR /app/frontend
-
-# Copy frontend package files
-COPY frontend/package*.json ./
-
-# Install frontend dependencies
-RUN npm ci --silent
-
-# Copy frontend source
-COPY frontend/ ./
-
-# Build frontend for production
-ENV REACT_APP_API_URL=/
-RUN npm run build
-
-# Stage 2: Backend with frontend build
+# Simple single-stage build with pre-built frontend
 FROM node:18-alpine
 
 WORKDIR /app
@@ -31,8 +12,8 @@ RUN npm ci --production --silent
 # Copy backend source code
 COPY backend/ ./
 
-# Copy frontend build from stage 1
-COPY --from=frontend-build /app/frontend/build ./frontend/build
+# Copy pre-built frontend
+COPY frontend/build ./frontend/build
 
 # Expose port (Railway will override with PORT env var)
 EXPOSE 5000
