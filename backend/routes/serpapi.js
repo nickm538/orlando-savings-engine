@@ -80,23 +80,28 @@ router.get('/hotels/orlando', async (req, res) => {
     const {
       check_in_date,
       check_out_date,
+      checkInDate,
+      checkOutDate,
       adults,
       children,
       min_price,
       max_price,
+      minPrice,
+      maxPrice,
       rating,
-      sort_by
+      sort_by,
+      sortBy
     } = req.query;
 
     const searchOptions = {
-      checkInDate: check_in_date,
-      checkOutDate: check_out_date,
+      checkInDate: checkInDate || check_in_date,
+      checkOutDate: checkOutDate || check_out_date,
       adults: adults ? parseInt(adults) : undefined,
       children: children ? parseInt(children) : undefined,
-      minPrice: min_price ? parseFloat(min_price) : undefined,
-      maxPrice: max_price ? parseFloat(max_price) : undefined,
+      minPrice: minPrice || min_price ? parseFloat(minPrice || min_price) : undefined,
+      maxPrice: maxPrice || max_price ? parseFloat(maxPrice || max_price) : undefined,
       rating: rating ? parseInt(rating) : undefined,
-      sortBy: sort_by ? parseInt(sort_by) : undefined
+      sortBy: sortBy || sort_by ? parseInt(sortBy || sort_by) : undefined
     };
 
     const results = await serpApiService.searchOrlandoHotels(searchOptions);
