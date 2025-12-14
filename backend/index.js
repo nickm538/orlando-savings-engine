@@ -21,6 +21,9 @@ const hotelRoutes = require('./routes/hotels');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for Railway deployment (required for rate limiting)
+app.set('trust proxy', 1);
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
