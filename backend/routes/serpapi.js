@@ -324,22 +324,39 @@ router.get('/ai/orlando-deals', async (req, res) => {
       'Orlando vacation package deals 2025'
     ];
 
-    // Execute searches in PARALLEL for faster response
+    // Execute searches in PARALLEL using regular Google Search (faster than AI Mode)
     const searchPromises = searchQueries.map(async (query) => {
       try {
-        const results = await serpApiService.searchAIMode({ q: query });
+        // Use regular Google Search instead of AI Mode for faster results
+        const params = {
+          engine: 'google',
+          q: query,
+          gl: 'us',
+          hl: 'en',
+          num: 5 // Get top 5 results per query
+        };
+        
+        const results = await serpApiService.makeAPICall(params);
         const insights = [];
         
-        if (results && results.text_blocks) {
-          results.text_blocks.forEach(block => {
-            if (block.snippet && block.snippet.length > 30) {
+        // Parse organic results from regular Google Search
+        if (results && results.organic_results) {
+          results.organic_results.slice(0, 3).forEach((result, index) => {
+            if (result.snippet && result.snippet.length > 30) {
+              // Determine deal type based on content
+              let dealType = 'deal';
+              const snippet = result.snippet.toLowerCase();
+              if (snippet.includes('discount') || snippet.includes('save')) dealType = 'discount';
+              if (snippet.includes('promo') || snippet.includes('code')) dealType = 'promo_code';
+              if (snippet.includes('package')) dealType = 'package';
+              
               insights.push({
-                type: block.type || 'deal',
-                content: block.snippet,
+                type: dealType,
+                content: result.snippet,
                 query: query,
-                source: block.source || 'serpapi_google_ai_mode_orlando',
+                source: result.link || 'google_search',
                 timestamp: new Date().toISOString(),
-                confidence: 85
+                confidence: 90 - (index * 5) // Higher confidence for top results
               });
             }
           });
