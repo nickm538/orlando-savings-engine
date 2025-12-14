@@ -120,7 +120,7 @@ router.get('/hotels/orlando', async (req, res) => {
     // Return fallback mock data if SerpAPI fails/times out
     const mockHotels = [
       {
-        name: 'Universal's Cabana Bay Beach Resort',
+        name: 'Universal\'s Cabana Bay Beach Resort',
         type: 'Hotel',
         description: 'Retro-themed resort with pools, dining, and free shuttle to Universal Orlando.',
         link: 'https://www.universalorlando.com/web/en/us/places-to-stay/universals-cabana-bay-beach-resort',
