@@ -200,12 +200,29 @@ router.get('/algorithm-info', (req, res) => {
 
 /**
  * Helper function to calculate duration between two dates
+ * FIXED: Removed Math.abs() and added proper validation
  */
 function calculateDuration(checkInDate, checkOutDate) {
   const start = new Date(checkInDate);
   const end = new Date(checkOutDate);
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Validate dates
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error('Invalid date format');
+  }
+  
+  if (end <= start) {
+    throw new Error('Check-out date must be after check-in date');
+  }
+  
+  const diffTime = end.getTime() - start.getTime();
+  const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (nights === 0) {
+    throw new Error('Minimum stay is 1 night');
+  }
+  
+  return nights;
 }
 
 module.exports = router;

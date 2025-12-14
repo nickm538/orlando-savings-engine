@@ -10,10 +10,11 @@ if (!SERP_API_KEY) {
   console.warn('⚠️ WARNING: SERP_API_KEY environment variable is not set. SerpApi calls will fail.');
 }
 
-// Rate limiter: 250 calls per month = ~8 calls per day
+// Rate limiter: 250 calls per month = 8 calls per day
+// FIXED: Was 1/hour (720/month) - now correctly 8/day (240/month)
 const limiter = new RateLimiter({
-  tokensPerInterval: 1,
-  interval: 'hour'
+  tokensPerInterval: 8,
+  interval: 'day'
 });
 
 class SerpApiService {
@@ -208,9 +209,47 @@ class SerpApiService {
       checkOutTime: hotel.check_out_time,
       contact: hotel.contact,
       source: 'serpapi_google_hotels',
-      confidence: 0.95,
+      confidence: this.calculateHotelConfidence(hotel),
       lastUpdated: new Date().toISOString()
     }));
+  }
+
+  /**
+   * Calculate dynamic confidence score for hotel data
+   * FIXED: Replaced hardcoded 0.95 with intelligent scoring
+   */
+  calculateHotelConfidence(hotel) {
+    let confidence = 0.70; // Base confidence
+    
+    // Price availability (+15%)
+    if (hotel.rate_per_night && hotel.rate_per_night.lowest > 0) {
+      confidence += 0.15;
+    }
+    
+    // Rating quality (+10% for 4.5+, +5% for 4.0+)
+    if (hotel.overall_rating >= 4.5) {
+      confidence += 0.10;
+    } else if (hotel.overall_rating >= 4.0) {
+      confidence += 0.05;
+    }
+    
+    // Review count (+5% for 500+)
+    if (hotel.review_count >= 500) {
+      confidence += 0.05;
+    }
+    
+    // Image availability (+3% for 3+ images)
+    if (hotel.images && hotel.images.length >= 3) {
+      confidence += 0.03;
+    }
+    
+    // Location data (+2% for coordinates)
+    if (hotel.latitude && hotel.longitude) {
+      confidence += 0.02;
+    }
+    
+    // Cap at 95%
+    return Math.min(confidence, 0.95);
   }
 
   /**

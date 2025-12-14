@@ -174,26 +174,50 @@ class HotelDealAnalyzer {
 
     // Add discovered deals
     dealData.forEach(deal => {
-      const discountPercent = this.extractDiscountPercent(deal.snippet);
-      const basePrice = this.findBasePrice(deal.hotelName, realTimeData);
-      const savings = Math.round(basePrice * (discountPercent / 100));
-      
-      combinedDeals.push({
-        id: deal.id,
-        hotelName: deal.hotelName,
-        promoText: deal.snippet,
-        originalPrice: basePrice,
-        discountedPrice: basePrice - savings,
-        savings: savings,
-        checkInDate: deal.checkInDate,
-        checkOutDate: deal.checkOutDate,
-        dealType: deal.dealType,
-        confidence: deal.confidence,
-        source: deal.source,
-        applicableDays: 0,
-        totalDays: 0,
-        isBestDeal: false
-      });
+      try {
+        const discountPercent = this.extractDiscountPercent(deal.snippet);
+        
+        // Validate discount percentage
+        if (discountPercent > 90) {
+          console.warn(`Unrealistic discount detected: ${discountPercent}% for ${deal.hotelName} - skipping`);
+          return; // Skip this deal
+        }
+        
+        const basePrice = this.findBasePrice(deal.hotelName, realTimeData);
+        const savings = Math.round(basePrice * (discountPercent / 100));
+        
+        // FIXED: Prevent negative prices
+        const discountedPrice = Math.max(0, basePrice - savings);
+        
+        // Warn about suspicious deals
+        if (discountedPrice === 0) {
+          console.warn(`Free hotel detected: ${deal.hotelName} - verify deal authenticity`);
+        }
+        
+        if (discountPercent > 70) {
+          console.warn(`Very high discount: ${discountPercent}% for ${deal.hotelName} - verify authenticity`);
+        }
+        
+        combinedDeals.push({
+          id: deal.id,
+          hotelName: deal.hotelName,
+          promoText: deal.snippet,
+          originalPrice: basePrice,
+          discountedPrice: discountedPrice,
+          savings: savings,
+          checkInDate: deal.checkInDate,
+          checkOutDate: deal.checkOutDate,
+          dealType: deal.dealType,
+          confidence: deal.confidence,
+          source: deal.source,
+          applicableDays: 0,
+          totalDays: 0,
+          isBestDeal: false
+        });
+      } catch (error) {
+        console.error(`Failed to process deal for ${deal.hotelName}:`, error.message);
+        // Skip this deal if price not available
+      }
     });
 
     return combinedDeals;
@@ -297,6 +321,7 @@ class HotelDealAnalyzer {
 
   /**
    * Find base price for a hotel
+   * FIXED: Removed $200 fallback - only returns real prices
    */
   findBasePrice(hotelName, realTimeData) {
     const hotel = realTimeData.find(h => 
@@ -304,7 +329,11 @@ class HotelDealAnalyzer {
       hotelName.toLowerCase().includes(h.hotelName.toLowerCase())
     );
     
-    return hotel ? hotel.originalPrice : 200; // Default fallback
+    if (!hotel || !hotel.originalPrice || hotel.originalPrice <= 0) {
+      throw new Error(`Real-time price not available for ${hotelName}`);
+    }
+    
+    return hotel.originalPrice;
   }
 
   /**

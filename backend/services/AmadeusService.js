@@ -294,7 +294,7 @@ class AmadeusService {
           grandTotal: parseFloat(offer.price.grandTotal),
           pricePerTraveler: offer.travelerPricings?.[0]?.price?.total 
             ? parseFloat(offer.travelerPricings[0].price.total) 
-            : parseFloat(offer.price.total) / searchOptions.adults
+            : parseFloat(offer.price.total) / (searchOptions.adults + (searchOptions.children || 0))
         },
 
         // Outbound journey
