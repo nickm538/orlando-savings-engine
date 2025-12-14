@@ -904,18 +904,26 @@ router.post('/insider-codes', async (req, res) => {
       );
     }
     
-    // Insider code queries (aggressive)
+    // Insider code queries (aggressive - non-public facing)
     queries.push(
       `${baseTarget} hidden promo code 2025`,
       `${baseTarget} employee discount code leaked`,
-      `${baseTarget} corporate rate code`,
+      `${baseTarget} corporate rate code unauthorized`,
       `site:slickdeals.net ${baseTarget} promo code`,
       `site:flyertalk.com ${baseTarget} insider rate`,
-      `${baseTarget} "price error" booking`,
-      `${baseTarget} secret discount code`,
+      `${baseTarget} "price error" booking glitch`,
+      `${baseTarget} secret discount code internal`,
       `${baseTarget} unpublished rate code`,
       `${baseTarget} "friends and family" code`,
-      `${baseTarget} "not advertised" discount`
+      `${baseTarget} "not advertised" discount`,
+      `${baseTarget} "pricing mistake" error fare`,
+      `${baseTarget} "leaked code" employee portal`,
+      `${baseTarget} "corporate access" booking`,
+      `${baseTarget} "internal use only" discount`,
+      `site:reddit.com/r/churning ${baseTarget} loophole`,
+      `${baseTarget} "non-public" rate code`,
+      `${baseTarget} "system glitch" discount`,
+      `${baseTarget} "backdoor" promo code`
     );
 
     // Use both Google and Bing for maximum coverage

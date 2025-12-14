@@ -316,6 +316,34 @@ const InsiderCodesPage: React.FC = () => {
           This tool aggregates publicly shared information and does not guarantee code validity.
         </p>
       </div>
+
+      {/* AI Price Error Detection Info */}
+      <div className="mt-12 bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border-2 border-orange-300">
+        <h2 className="text-2xl font-bold mb-4 flex items-center text-orange-900">
+          🤖 AI-Powered Price Error Detection
+        </h2>
+        <div className="space-y-3 text-gray-700">
+          <p className="font-semibold">
+            Our advanced search algorithms actively scan for:
+          </p>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li><strong>Pricing Glitches:</strong> System errors that create temporary deep discounts</li>
+            <li><strong>Leaked Employee Codes:</strong> Internal-use codes shared on forums and Reddit</li>
+            <li><strong>Corporate Portal Access:</strong> Business rates not advertised to the public</li>
+            <li><strong>Error Fares:</strong> Booking mistakes that save hundreds of dollars</li>
+            <li><strong>Non-Public Rates:</strong> Hidden discount tiers and backdoor promo codes</li>
+            <li><strong>Loopholes & Stacking:</strong> Techniques to combine multiple discounts</li>
+          </ul>
+          <p className="text-sm text-orange-800 mt-4 font-semibold">
+            ⚠️ Search Sources: Reddit (r/churning, r/TravelHacks), Slickdeals, FlyerTalk, employee forums, 
+            corporate booking portals, and deep web travel communities.
+          </p>
+          <p className="text-xs text-gray-600 mt-2">
+            Disclaimer: All codes are publicly accessible through search engines. We do not hack, steal, 
+            or access unauthorized systems. Use codes at your own discretion.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

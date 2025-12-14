@@ -168,8 +168,8 @@ const HotelsPage: React.FC = () => {
                 {hotels.map((hotel) => (
                   <div key={hotel.id} className="hotel-card">
                     <div className="hotel-image">
-                      {hotel.images && hotel.images.length > 0 ? (
-                        <img src={hotel.images[0]} alt={hotel.name} />
+                      {hotel.images && hotel.images.length > 0 && hotel.images[0].thumbnail ? (
+                        <img src={hotel.images[0].thumbnail} alt={hotel.name} />
                       ) : (
                         <div className="placeholder-image">🏨</div>
                       )}
