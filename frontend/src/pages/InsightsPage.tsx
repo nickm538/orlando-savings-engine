@@ -3,11 +3,11 @@ import { useSerpApi } from '../contexts/SerpApiContext';
 import './InsightsPage.css';
 
 const InsightsPage: React.FC = () => {
-  const { searchOrlandoDeals, insights, isLoadingInsights } = useSerpApi();
+  const { searchTravelInsights, insights, isLoadingInsights } = useSerpApi();
 
   useEffect(() => {
-    searchOrlandoDeals();
-  }, [searchOrlandoDeals]);
+    searchTravelInsights('Orlando travel insights');
+  }, [searchTravelInsights]);
 
   return (
     <div className="insights-page">

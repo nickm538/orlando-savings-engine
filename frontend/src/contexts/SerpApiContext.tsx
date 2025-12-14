@@ -169,8 +169,8 @@ export const SerpApiProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const searchTravelInsights = useCallback(async (query: string) => {
     setIsLoadingInsights(true);
     try {
-      const params = new URLSearchParams({ query });
-      const response = await fetch(`${API_BASE_URL}/api/serpapi/ai/travel-insights?${params}`, {
+      // Use Bing Search endpoint for travel insights
+      const response = await fetch(`${API_BASE_URL}/api/serpapi/bing/travel-insights`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

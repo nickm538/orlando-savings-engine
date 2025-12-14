@@ -694,4 +694,151 @@ router.get('/light/orlando-deals', async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/serpapi/bing/travel-insights
+ * @desc    Get Orlando travel insights using Bing Search API
+ * @access  Public
+ */
+// Cache for Bing travel insights (1 hour TTL)
+let bingInsightsCache = null;
+let bingInsightsCacheTime = null;
+const BING_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+router.get('/bing/travel-insights', async (req, res) => {
+  try {
+    // Check cache first
+    const now = Date.now();
+    if (bingInsightsCache && bingInsightsCacheTime && (now - bingInsightsCacheTime) < BING_CACHE_TTL) {
+      console.log('Returning cached Bing travel insights');
+      return res.json({
+        success: true,
+        data: bingInsightsCache,
+        count: bingInsightsCache.length,
+        source: 'cached_bing_data',
+        cached_at: new Date(bingInsightsCacheTime).toISOString(),
+        cache_expires_in: Math.round((BING_CACHE_TTL - (now - bingInsightsCacheTime)) / 1000) + ' seconds'
+      });
+    }
+
+    // Fallback mock data
+    const fallbackInsights = [
+      {
+        type: 'tip',
+        content: 'Visit Orlando theme parks during weekdays (Tuesday-Thursday) for shorter wait times and better deals on hotels.',
+        query: 'Orlando travel tips best time to visit',
+        source: 'bing_search',
+        timestamp: new Date().toISOString(),
+        confidence: 90
+      },
+      {
+        type: 'recommendation',
+        content: 'Book Disney World tickets 60-90 days in advance to secure the best prices and park reservations.',
+        query: 'Disney World booking tips',
+        source: 'bing_search',
+        timestamp: new Date().toISOString(),
+        confidence: 85
+      }
+    ];
+
+    // Top 5 Bing search queries for travel insights
+    const searchQueries = [
+      'Orlando travel tips 2025',
+      'best time visit Disney World Universal Studios',
+      'Orlando hidden gems attractions',
+      'Orlando food recommendations restaurants',
+      'Orlando weather seasonal guide'
+    ];
+
+    // Timeout wrapper
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Bing Search timeout')), 15000)
+    );
+
+    const searchPromise = async () => {
+      // Execute Bing searches in parallel
+      const searchPromises = searchQueries.map(async (query) => {
+        try {
+          const params = {
+            engine: 'bing',
+            q: query,
+            cc: 'US',
+            num: 5
+          };
+          
+          const results = await serpApiService.makeAPICall(params);
+          const insights = [];
+          
+          // Parse Bing organic results
+          if (results && results.organic_results) {
+            results.organic_results.slice(0, 3).forEach((result, index) => {
+              if (result.snippet && result.snippet.length > 30) {
+                // Determine insight type based on content
+                let insightType = 'tip';
+                const snippet = result.snippet.toLowerCase();
+                if (snippet.includes('recommend') || snippet.includes('best')) insightType = 'recommendation';
+                if (snippet.includes('guide') || snippet.includes('how to')) insightType = 'guide';
+                if (snippet.includes('warning') || snippet.includes('avoid')) insightType = 'warning';
+                if (snippet.includes('secret') || snippet.includes('hidden')) insightType = 'secret';
+                
+                insights.push({
+                  type: insightType,
+                  content: result.snippet,
+                  query: query,
+                  source: result.link || 'bing_search',
+                  timestamp: new Date().toISOString(),
+                  confidence: 90 - (index * 5)
+                });
+              }
+            });
+          }
+          
+          return insights;
+        } catch (error) {
+          console.error(`Failed to process Bing query: ${query}`, error.message);
+          return [];
+        }
+      });
+
+      const resultsArrays = await Promise.all(searchPromises);
+      const allInsights = resultsArrays.flat();
+      return allInsights;
+    };
+
+    try {
+      const allInsights = await Promise.race([searchPromise(), timeoutPromise]);
+      
+      // Cache the results
+      if (allInsights.length > 0) {
+        bingInsightsCache = allInsights;
+        bingInsightsCacheTime = Date.now();
+      }
+      
+      res.json({
+        success: true,
+        data: allInsights.length > 0 ? allInsights : fallbackInsights,
+        count: allInsights.length > 0 ? allInsights.length : fallbackInsights.length,
+        source: allInsights.length > 0 ? 'bing_search_orlando' : 'fallback_mock_data',
+        queries: searchQueries
+      });
+    } catch (timeoutError) {
+      console.error('Bing Search error:', timeoutError.message);
+      res.json({
+        success: true,
+        data: fallbackInsights,
+        count: fallbackInsights.length,
+        source: 'fallback_mock_data',
+        message: 'Using cached insights due to API timeout',
+        error_details: timeoutError.message
+      });
+    }
+  } catch (error) {
+    console.error('Bing travel insights error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get travel insights',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;
