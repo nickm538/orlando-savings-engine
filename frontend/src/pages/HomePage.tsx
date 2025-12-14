@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSearch } from '../contexts/SearchContext';
 import { useSerpApi } from '../contexts/SerpApiContext';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const { isSearching, performSearch } = useSearch();
   const { searchOrlandoDeals, insights } = useSerpApi();
 
@@ -15,6 +16,7 @@ const HomePage: React.FC = () => {
 
   const handleQuickSearch = async (category: string) => {
     await performSearch(`${category} Orlando Florida`);
+    navigate('/hotels');
   };
 
   return (
