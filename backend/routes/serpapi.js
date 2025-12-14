@@ -327,12 +327,6 @@ router.get('/ai/orlando-deals', async (req, res) => {
       }
     ];
 
-    // Wrap SerpAPI call in timeout
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('SerpAPI timeout')), 15000)
-    );
-
-    const searchPromise = async () => {
     // Top 5 most important queries executed in parallel for faster response
     const searchQueries = [
       'Orlando Disney World discounts 2025',
@@ -342,8 +336,15 @@ router.get('/ai/orlando-deals', async (req, res) => {
       'Orlando vacation package deals 2025'
     ];
 
+    // Wrap SerpAPI call in timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('SerpAPI timeout')), 15000)
+    );
+
+    const searchPromise = async () => {
     // Execute searches in PARALLEL using regular Google Search (faster than AI Mode)
     const searchPromises = searchQueries.map(async (query) => {
+
       try {
         // Use regular Google Search instead of AI Mode for faster results
         const params = {
