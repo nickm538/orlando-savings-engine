@@ -13,6 +13,7 @@ const serpApiRoutes = require('./routes/serpapi');
 const analyzerRoutes = require('./routes/analyzer');
 const carRentalRoutes = require('./routes/carrental');
 const advancedRoutes = require('./routes/advanced');
+const trafficRoutes = require('./routes/traffic');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -124,9 +125,10 @@ app.get('/', (req, res) => {
       documentation: '/api',
       hotels: '/api/serpapi/hotels/orlando',
       deals: '/api/analyzer/sample-deals',
-      flights: '/api/amadeus/status',
-      carRentals: '/api/carrental/orlando-deals'
-    },
+      flights: '/api/amadeus/status',      "carRentals": "/api/carrental/orlando-deals",
+      "trafficAnalysis": "/api/traffic/analyze/2025",
+      "bestMonths": "/api/traffic/best-months/2025",
+      "advancedDemo": "/api/advanced/demo-analysis"    },
     documentation: 'Visit /api for full API documentation',
     github: 'https://github.com/nickm538/orlando-savings-engine'
   });
@@ -139,6 +141,7 @@ app.use('/api/serpapi', serpApiRoutes);
 app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/carrental', carRentalRoutes);
 app.use('/api/advanced', advancedRoutes);
+app.use('/api/traffic', trafficRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
