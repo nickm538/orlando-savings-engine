@@ -451,4 +451,124 @@ router.post('/rank-comparison', async (req, res) => {
   }
 });
 
+// Import intelligent guidance engine
+const IntelligentGuidanceEngine = require('../services/IntelligentGuidanceEngine');
+const DiscountCodeValidator = require('../services/DiscountCodeValidator');
+
+const guidanceEngine = new IntelligentGuidanceEngine();
+const discountValidator = new DiscountCodeValidator();
+
+/**
+ * Get intelligent guidance for a specific hotel
+ * POST /api/hotels/guidance
+ */
+router.post('/guidance', async (req, res) => {
+  try {
+    const { hotel, context, marketData } = req.body;
+    
+    if (!hotel || !context) {
+      return res.status(400).json({
+        success: false,
+        error: 'Hotel data and context required'
+      });
+    }
+    
+    // Generate comprehensive guidance
+    const guidance = await guidanceEngine.generateGuidance(hotel, context, marketData);
+    
+    res.json({
+      success: true,
+      guidance
+    });
+  } catch (error) {
+    console.error('Error generating guidance:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Discover and validate discount codes
+ * POST /api/hotels/discounts
+ */
+router.post('/discounts', async (req, res) => {
+  try {
+    const { hotel, searchParams } = req.body;
+    
+    if (!hotel || !searchParams) {
+      return res.status(400).json({
+        success: false,
+        error: 'Hotel data and search parameters required'
+      });
+    }
+    
+    // Discover all available discounts
+    const discounts = await discountValidator.discoverDiscounts(hotel, searchParams);
+    
+    res.json(discounts);
+  } catch (error) {
+    console.error('Error discovering discounts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Validate eligibility for a discount code
+ * POST /api/hotels/validate-code
+ */
+router.post('/validate-code', async (req, res) => {
+  try {
+    const { code, userProfile } = req.body;
+    
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        error: 'Discount code required'
+      });
+    }
+    
+    const validation = discountValidator.validateEligibility(code, userProfile);
+    
+    res.json({
+      success: true,
+      code,
+      ...validation
+    });
+  } catch (error) {
+    console.error('Error validating code:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get usage instructions for a discount code
+ * GET /api/hotels/code-instructions/:code
+ */
+router.get('/code-instructions/:code', (req, res) => {
+  try {
+    const { code } = req.params;
+    
+    const instructions = discountValidator.getUsageInstructions(code);
+    
+    res.json({
+      success: true,
+      ...instructions
+    });
+  } catch (error) {
+    console.error('Error getting instructions:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
