@@ -263,8 +263,26 @@ router.get('/ai/travel-insights', async (req, res) => {
  * @desc    Get Orlando-specific travel deals and insights
  * @access  Public
  */
+// Cache for orlando-deals (1 hour TTL)
+let orlandoDealsCache = null;
+let orlandoDealsCacheTime = null;
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+
 router.get('/ai/orlando-deals', async (req, res) => {
   try {
+    // Check cache first
+    const now = Date.now();
+    if (orlandoDealsCache && orlandoDealsCacheTime && (now - orlandoDealsCacheTime) < CACHE_TTL) {
+      console.log('Returning cached orlando-deals data');
+      return res.json({
+        success: true,
+        data: orlandoDealsCache,
+        count: orlandoDealsCache.length,
+        source: 'cached_serpapi_data',
+        cached_at: new Date(orlandoDealsCacheTime).toISOString(),
+        cache_expires_in: Math.round((CACHE_TTL - (now - orlandoDealsCacheTime)) / 1000) + ' seconds'
+      });
+    }
     // Fallback mock data in case SerpAPI times out
     const fallbackDeals = [
       {
@@ -379,11 +397,17 @@ router.get('/ai/orlando-deals', async (req, res) => {
     try {
       const allInsights = await Promise.race([searchPromise(), timeoutPromise]);
       
+      // Cache the results
+      if (allInsights.length > 0) {
+        orlandoDealsCache = allInsights;
+        orlandoDealsCacheTime = Date.now();
+      }
+      
       res.json({
         success: true,
         data: allInsights.length > 0 ? allInsights : fallbackDeals,
         count: allInsights.length > 0 ? allInsights.length : fallbackDeals.length,
-        source: allInsights.length > 0 ? 'serpapi_google_ai_mode_orlando_deals' : 'fallback_mock_data',
+        source: allInsights.length > 0 ? 'serpapi_google_search_orlando' : 'fallback_mock_data',
         queries: searchQueries
       });
     } catch (timeoutError) {
