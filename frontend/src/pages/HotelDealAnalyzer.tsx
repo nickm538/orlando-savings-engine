@@ -16,6 +16,7 @@ interface Deal {
   source: string;
   applicableDays: number;
   totalDays: number;
+  duration?: number;
 }
 
 interface DealAnalysis {
