@@ -71,7 +71,7 @@ export const SerpApiProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLoadingHotels, setIsLoadingHotels] = useState(false);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://orlando-savings-engine-production.up.railway.app';
 
   // Hotel search functions
   const searchHotels = useCallback(async (options = {}) => {
