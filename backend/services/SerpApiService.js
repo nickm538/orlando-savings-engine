@@ -39,7 +39,7 @@ class SerpApiService {
           ...params,
           api_key: this.apiKey
         },
-        timeout: 30000
+        timeout: 15000 // Reduced from 30s to 15s for faster error handling
       });
 
       return response.data;
