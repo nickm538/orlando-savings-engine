@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
@@ -142,6 +143,23 @@ app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/carrental', carRentalRoutes);
 app.use('/api/advanced', advancedRoutes);
 app.use('/api/traffic', trafficRoutes);
+
+// Serve frontend static files
+const frontendPath = path.join(__dirname, '../frontend/build');
+app.use(express.static(frontendPath));
+
+// Serve index.html for all non-API routes (SPA support)
+app.get('*', (req, res) => {
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      error: 'Route not found',
+      message: `Cannot ${req.method} ${req.path}`
+    });
+  }
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

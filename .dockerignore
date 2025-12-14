@@ -1,23 +1,21 @@
-# Node modules
+# Node modules (will be installed in container)
 node_modules
-backend/node_modules
-frontend/node_modules
+**/node_modules
 npm-debug.log
 yarn-error.log
 
-# Environment files
+# Build artifacts (will be built in container)
+frontend/build
+
+# Environment files (set in Railway)
 .env
 .env.local
 .env.*.local
 backend/.env
 
-# Frontend (not needed for backend image)
-frontend/
-
 # Documentation
 docs/
 *.md
-!backend/README.md
 
 # Git
 .git
@@ -49,3 +47,4 @@ logs
 railway.json
 railway.toml
 nixpacks.toml
+Procfile
