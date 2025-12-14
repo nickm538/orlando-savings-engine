@@ -103,6 +103,34 @@ app.get('/api', (req, res) => {
   });
 });
 
+// Root welcome page
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    name: '🏰 Orlando Savings Engine API',
+    version: '2.0.0',
+    status: 'online',
+    description: 'AI-powered travel savings for Orlando vacations - Hotels, Theme Parks, Car Rentals',
+    features: [
+      '✅ Real-time hotel pricing',
+      '✅ Advanced savings optimization',
+      '✅ Dynamic confidence scoring',
+      '✅ Theme park deals',
+      '✅ Car rental discounts'
+    ],
+    endpoints: {
+      health: '/api/health',
+      documentation: '/api',
+      hotels: '/api/serpapi/hotels/orlando',
+      deals: '/api/analyzer/sample-deals',
+      flights: '/api/amadeus/status',
+      carRentals: '/api/carrental/orlando-deals'
+    },
+    documentation: 'Visit /api for full API documentation',
+    github: 'https://github.com/nickm538/orlando-savings-engine'
+  });
+});
+
 // API routes
 app.use('/api/amadeus', amadeusRoutes);
 app.use('/api/darkweb', darkWebRoutes);
