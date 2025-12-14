@@ -1,19 +1,24 @@
 # Simple single-stage build with pre-built frontend
 FROM node:18-alpine
 
+# Set working directory to match repository structure
 WORKDIR /app
 
 # Copy backend package files
-COPY backend/package*.json ./
+COPY backend/package*.json ./backend/
 
 # Install backend dependencies
+WORKDIR /app/backend
 RUN npm ci --production --silent
 
 # Copy backend source code
-COPY backend/ ./
+COPY backend/ /app/backend/
 
 # Copy pre-built frontend
-COPY frontend/build ./frontend/build
+COPY frontend/build /app/frontend/build
+
+# Set working directory to backend for execution
+WORKDIR /app/backend
 
 # Expose port (Railway will override with PORT env var)
 EXPOSE 5000
