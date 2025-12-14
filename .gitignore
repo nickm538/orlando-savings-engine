@@ -41,5 +41,4 @@ backend/node_modules/
 
 # Frontend specific
 frontend/.env.local
-frontend/build/
 frontend/node_modules/

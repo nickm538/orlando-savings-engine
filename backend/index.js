@@ -119,7 +119,14 @@ app.use('/api/traffic', trafficRoutes);
 
 // Serve frontend static files
 const frontendPath = path.join(__dirname, '../frontend/build');
-app.use(express.static(frontendPath));
+console.log('Frontend path:', frontendPath);
+const fs = require('fs');
+if (fs.existsSync(frontendPath)) {
+  console.log('Frontend build directory exists');
+  app.use(express.static(frontendPath));
+} else {
+  console.error('Frontend build directory NOT found at:', frontendPath);
+}
 
 // Serve index.html for all non-API routes (SPA support)
 app.get('*', (req, res) => {
@@ -131,7 +138,17 @@ app.get('*', (req, res) => {
       message: `Cannot ${req.method} ${req.path}`
     });
   }
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  const indexPath = path.join(frontendPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({
+      success: false,
+      error: 'Frontend not found',
+      message: 'Frontend build not available. Please build frontend first.',
+      hint: 'Run: cd frontend && npm run build'
+    });
+  }
 });
 
 // Error handling middleware
