@@ -1,0 +1,17 @@
+# Frontend (not needed for backend deployment)
+frontend/
+
+# Documentation
+docs/
+
+# Test files
+test-*.js
+
+# Development files
+*.log
+.env.local
+.DS_Store
+
+# Node modules (will be installed during build)
+node_modules/
+*/node_modules/

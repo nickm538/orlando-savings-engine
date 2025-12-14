@@ -1,0 +1,27 @@
+{
+  "name": "orlando-savings-engine",
+  "version": "2.0.0",
+  "description": "Orlando Travel Savings Engine - Hotels, Theme Parks, Car Rentals",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "cd backend && node index.js",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "build": "cd backend && npm install --production"
+  },
+  "keywords": [
+    "travel",
+    "orlando",
+    "savings",
+    "hotels",
+    "theme-parks",
+    "car-rentals"
+  ],
+  "author": "Orlando Savings Engine",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
