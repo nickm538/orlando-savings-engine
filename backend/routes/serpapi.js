@@ -315,42 +315,46 @@ router.get('/ai/orlando-deals', async (req, res) => {
     );
 
     const searchPromise = async () => {
+    // Top 5 most important queries executed in parallel for faster response
     const searchQueries = [
-      'Orlando Disney World secret discounts 2025',
-      'Universal Studios Orlando promo codes',
-      'Orlando hotel deals near theme parks',
-      'Florida resident theme park discounts',
-      'Orlando vacation package deals',
-      'Disney World military discounts',
-      'Universal Studios annual pass discounts',
-      'Orlando restaurant deals coupons',
-      'Florida theme park ticket hacks',
-      'Orlando car rental deals discounts'
+      'Orlando Disney World discounts 2025',
+      'Universal Studios Orlando deals promo codes',
+      'Orlando hotel deals theme parks',
+      'Florida resident Disney Universal discounts',
+      'Orlando vacation package deals 2025'
     ];
 
-    const allInsights = [];
-    
-    for (const query of searchQueries) {
+    // Execute searches in PARALLEL for faster response
+    const searchPromises = searchQueries.map(async (query) => {
       try {
         const results = await serpApiService.searchAIMode({ q: query });
+        const insights = [];
+        
         if (results && results.text_blocks) {
           results.text_blocks.forEach(block => {
             if (block.snippet && block.snippet.length > 30) {
-              allInsights.push({
-                type: block.type,
+              insights.push({
+                type: block.type || 'deal',
                 content: block.snippet,
                 query: query,
-                source: 'serpapi_google_ai_mode_orlando',
+                source: block.source || 'serpapi_google_ai_mode_orlando',
                 timestamp: new Date().toISOString(),
-                confidence: 0.85
+                confidence: 85
               });
             }
           });
         }
+        
+        return insights;
       } catch (error) {
         console.error(`Failed to process query: ${query}`, error.message);
+        return [];
       }
-    }
+    });
+
+    // Wait for all searches to complete in parallel
+    const resultsArrays = await Promise.all(searchPromises);
+    const allInsights = resultsArrays.flat();
 
       return allInsights;
     };
