@@ -263,10 +263,10 @@ router.get('/ai/travel-insights', async (req, res) => {
  * @desc    Get Orlando-specific travel deals and insights
  * @access  Public
  */
-// Cache for orlando-deals (1 hour TTL)
+// Cache for Orlando deals (30 minutes TTL)
 let orlandoDealsCache = null;
 let orlandoDealsCacheTime = null;
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 router.get('/ai/orlando-deals', async (req, res) => {
   try {
@@ -699,10 +699,10 @@ router.get('/light/orlando-deals', async (req, res) => {
  * @desc    Get Orlando travel insights using Bing Search API
  * @access  Public
  */
-// Cache for Bing travel insights (1 hour TTL)
+// Cache for Bing travel insights (30 minutes TTL)
 let bingInsightsCache = null;
 let bingInsightsCacheTime = null;
-const BING_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const BING_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 router.get('/bing/travel-insights', async (req, res) => {
   try {
