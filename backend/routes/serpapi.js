@@ -841,4 +841,216 @@ router.get('/bing/travel-insights', async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/serpapi/insider-codes
+ * @desc    Get insider codes, hidden deals, price errors using aggressive deep web searches
+ * @access  Public
+ */
+// Cache for insider codes (30 minutes TTL)
+let insiderCodesCache = {};
+const INSIDER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+router.post('/insider-codes', async (req, res) => {
+  try {
+    const { searchType, hotelName, themePark, checkIn, checkOut, userType } = req.body;
+    
+    // Create cache key
+    const cacheKey = `${searchType}_${hotelName || themePark}_${userType}`;
+    
+    // Check cache
+    const now = Date.now();
+    if (insiderCodesCache[cacheKey] && (now - insiderCodesCache[cacheKey].timestamp) < INSIDER_CACHE_TTL) {
+      console.log('Returning cached insider codes');
+      return res.json({
+        success: true,
+        data: insiderCodesCache[cacheKey].data,
+        count: insiderCodesCache[cacheKey].data.length,
+        source: 'cached',
+        cached_at: new Date(insiderCodesCache[cacheKey].timestamp).toISOString()
+      });
+    }
+
+    // Build aggressive search queries based on user type and target
+    const baseTarget = searchType === 'hotel' ? hotelName : themePark;
+    const queries = [];
+    
+    // Occupational discount queries
+    if (userType === 'emt' || userType === 'first_responder') {
+      queries.push(
+        `${baseTarget} EMT first responder discount code`,
+        `${baseTarget} emergency medical technician promo`,
+        `${baseTarget} paramedic discount hidden`,
+        `site:reddit.com ${baseTarget} first responder code`,
+        `"first responder rate" ${baseTarget} booking`
+      );
+    }
+    
+    if (userType === 'student') {
+      queries.push(
+        `${baseTarget} student discount .edu code`,
+        `${baseTarget} college university promo`,
+        `site:reddit.com ${baseTarget} student discount`,
+        `${baseTarget} "student rate" booking code`,
+        `${baseTarget} unidays student beans code`
+      );
+    }
+    
+    if (userType === 'nonprofit') {
+      queries.push(
+        `${baseTarget} nonprofit discount code`,
+        `${baseTarget} 501c3 organization rate`,
+        `${baseTarget} charity worker discount`,
+        `site:reddit.com ${baseTarget} nonprofit code`
+      );
+    }
+    
+    // Insider code queries (aggressive)
+    queries.push(
+      `${baseTarget} hidden promo code 2025`,
+      `${baseTarget} employee discount code leaked`,
+      `${baseTarget} corporate rate code`,
+      `site:slickdeals.net ${baseTarget} promo code`,
+      `site:flyertalk.com ${baseTarget} insider rate`,
+      `${baseTarget} "price error" booking`,
+      `${baseTarget} secret discount code`,
+      `${baseTarget} unpublished rate code`,
+      `${baseTarget} "friends and family" code`,
+      `${baseTarget} "not advertised" discount`
+    );
+
+    // Use both Google and Bing for maximum coverage
+    const searchPromises = [];
+    
+    // Google searches (first 8 queries)
+    queries.slice(0, 8).forEach(query => {
+      searchPromises.push(
+        serpApiService.makeAPICall({
+          engine: 'google',
+          q: query,
+          gl: 'us',
+          num: 10
+        }).then(results => ({
+          engine: 'google',
+          query,
+          results: results?.organic_results || []
+        })).catch(() => ({ engine: 'google', query, results: [] }))
+      );
+    });
+    
+    // Bing searches (remaining queries)
+    queries.slice(8).forEach(query => {
+      searchPromises.push(
+        serpApiService.makeAPICall({
+          engine: 'bing',
+          q: query,
+          cc: 'US',
+          count: 10
+        }).then(results => ({
+          engine: 'bing',
+          query,
+          results: results?.organic_results || []
+        })).catch(() => ({ engine: 'bing', query, results: [] }))
+      );
+    });
+
+    // Execute all searches in parallel with timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Search timeout')), 20000)
+    );
+
+    const searchResults = await Promise.race([
+      Promise.all(searchPromises),
+      timeoutPromise
+    ]);
+
+    // Parse and extract codes
+    const codes = [];
+    const seenCodes = new Set();
+
+    searchResults.forEach(({ engine, query, results }) => {
+      results.slice(0, 5).forEach((result, index) => {
+        if (!result.snippet) return;
+        
+        const snippet = result.snippet;
+        const title = result.title || '';
+        
+        // Extract potential codes (alphanumeric, 4-20 chars)
+        const codeMatches = snippet.match(/\b[A-Z0-9]{4,20}\b/g) || [];
+        const titleMatches = title.match(/\b[A-Z0-9]{4,20}\b/g) || [];
+        
+        const allMatches = [...new Set([...codeMatches, ...titleMatches])];
+        
+        allMatches.forEach(code => {
+          if (seenCodes.has(code)) return;
+          seenCodes.add(code);
+          
+          // Determine code type
+          let codeType = 'promo_code';
+          const lowerSnippet = snippet.toLowerCase();
+          if (lowerSnippet.includes('employee') || lowerSnippet.includes('corporate')) codeType = 'insider';
+          if (lowerSnippet.includes('error') || lowerSnippet.includes('mistake')) codeType = 'price_error';
+          if (lowerSnippet.includes('secret') || lowerSnippet.includes('hidden')) codeType = 'secret';
+          if (lowerSnippet.includes('student')) codeType = 'student';
+          if (lowerSnippet.includes('emt') || lowerSnippet.includes('first responder')) codeType = 'first_responder';
+          
+          codes.push({
+            code: code,
+            type: codeType,
+            description: snippet.substring(0, 150),
+            source: result.link || 'unknown',
+            query: query,
+            engine: engine,
+            confidence: 85 - (index * 5),
+            found_at: new Date().toISOString()
+          });
+        });
+        
+        // Also add full snippet as a deal if it mentions discount/save
+        if (snippet.match(/save|discount|off|deal|promo/i)) {
+          codes.push({
+            code: null,
+            type: 'deal',
+            description: snippet,
+            source: result.link || 'unknown',
+            query: query,
+            engine: engine,
+            confidence: 80 - (index * 5),
+            found_at: new Date().toISOString()
+          });
+        }
+      });
+    });
+
+    // Sort by confidence
+    codes.sort((a, b) => b.confidence - a.confidence);
+    
+    // Limit to top 50
+    const topCodes = codes.slice(0, 50);
+
+    // Cache results
+    insiderCodesCache[cacheKey] = {
+      data: topCodes,
+      timestamp: Date.now()
+    };
+
+    res.json({
+      success: true,
+      data: topCodes,
+      count: topCodes.length,
+      source: 'live_search',
+      search_type: searchType,
+      user_type: userType,
+      queries_executed: queries.length
+    });
+
+  } catch (error) {
+    console.error('Insider codes error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to find insider codes',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;

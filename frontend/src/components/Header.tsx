@@ -56,6 +56,9 @@ const Header: React.FC = () => {
             <Link to="/insights" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               Insights
             </Link>
+            <Link to="/codes" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              🔓 Codes
+            </Link>
             <Link to="/analyzer" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               Deal Analyzer
             </Link>

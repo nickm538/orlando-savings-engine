@@ -10,6 +10,7 @@ import HotelsPage from './pages/HotelsPage';
 import InsightsPage from './pages/InsightsPage';
 import SearchPage from './pages/SearchPage';
 import HotelDealAnalyzer from './pages/HotelDealAnalyzer';
+import InsiderCodesPage from './pages/InsiderCodesPage';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                   <Route path="/insights" element={<InsightsPage />} />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/analyzer" element={<HotelDealAnalyzer />} />
+                  <Route path="/codes" element={<InsiderCodesPage />} />
                 </Routes>
               </main>
             </div>
