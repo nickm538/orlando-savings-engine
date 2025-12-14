@@ -12,6 +12,7 @@ const darkWebRoutes = require('./routes/darkweb');
 const serpApiRoutes = require('./routes/serpapi');
 const analyzerRoutes = require('./routes/analyzer');
 const carRentalRoutes = require('./routes/carrental');
+const advancedRoutes = require('./routes/advanced');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -137,6 +138,7 @@ app.use('/api/darkweb', darkWebRoutes);
 app.use('/api/serpapi', serpApiRoutes);
 app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/carrental', carRentalRoutes);
+app.use('/api/advanced', advancedRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
