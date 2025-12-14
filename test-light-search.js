@@ -8,7 +8,7 @@ async function testGoogleLightSearch() {
   try {
     // Test 1: Basic Google Light Search
     console.log('⚡ Testing Google Light Search...');
-    console.log('📍 API Key: 80fc40554b48df07eec794aaf3e97bc8d62213e75d72110e402e0aef03a2cda6');
+    console.log('📍 API Key: 6cf510162e29b592d5d3d06c2f5f60511b062cb8316e98f3ef4f01a230474c6f');
     
     const lightResults = await serpApi.searchLight({
       q: 'Universal Studios secret corporate promo codes Orlando',
@@ -77,7 +77,7 @@ async function testGoogleLightSearch() {
   } catch (error) {
     console.error('❌ Google Light Search test failed:', error.message);
     console.error('🔍 Error details:', error);
-    console.error('💡 API Key should be in: -d api_key="80fc40554b48df07eec794aaf3e97bc8d62213e75d72110e402e0aef03a2cda6"');
+    console.error('💡 API Key should be in: -d api_key="6cf510162e29b592d5d3d06c2f5f60511b062cb8316e98f3ef4f01a230474c6f"');
   }
 }
 
