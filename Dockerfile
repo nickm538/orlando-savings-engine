@@ -1,26 +1,19 @@
-# Simple single-stage build with pre-built frontend
+# Backend-only Docker build for Railway
 FROM node:18-alpine
 
-# Set working directory to match repository structure
+# Set working directory
 WORKDIR /app
 
-# Copy backend package files
-COPY backend/package*.json ./backend/
+# Copy package files
+COPY backend/package*.json ./
 
-# Install backend dependencies
-WORKDIR /app/backend
+# Install dependencies
 RUN npm ci --production --silent
 
 # Copy backend source code
-COPY backend/ /app/backend/
+COPY backend/ ./
 
-# Copy pre-built frontend
-COPY frontend/build /app/frontend/build
-
-# Set working directory to backend for execution
-WORKDIR /app/backend
-
-# Expose port (Railway will override with PORT env var)
+# Expose port (Railway will set PORT env var)
 EXPOSE 5000
 
 # Health check
