@@ -56,7 +56,7 @@ class DualSourceHotelAggregator {
     const mergedHotels = this.mergeHotels(serpHotels, amadeusHotels);
 
     // Detect price errors across all hotels
-    const hotelsWithErrors = this.priceErrorDetector.analyzeHotels(mergedHotels);
+    const hotelsWithErrors = this.priceErrorDetector.batchAnalyze(mergedHotels);
 
     // Rank hotels by savings potential
     const rankedHotels = this.rankHotelsBySavings(hotelsWithErrors);
