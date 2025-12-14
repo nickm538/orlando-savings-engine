@@ -16,6 +16,7 @@ const analyzerRoutes = require('./routes/analyzer');
 const carRentalRoutes = require('./routes/carrental');
 const advancedRoutes = require('./routes/advanced');
 const trafficRoutes = require('./routes/traffic');
+const hotelRoutes = require('./routes/hotels');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -117,6 +118,7 @@ app.use('/api/analyzer', analyzerRoutes);
 app.use('/api/carrental', carRentalRoutes);
 app.use('/api/advanced', advancedRoutes);
 app.use('/api/traffic', trafficRoutes);
+app.use('/api/hotels', hotelRoutes);
 
 // Serve frontend static files
 const frontendPath = path.join(__dirname, '../frontend/build');
@@ -180,6 +182,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   - /api/analyzer   (Deal analysis)`);
   console.log(`   - /api/amadeus    (Flight search)`);
   console.log(`   - /api/carrental  (Car rental deals)`);
+  console.log(`   - /api/hotels     (Dual-source hotel search)`);
+  console.log(`   - /api/advanced   (Advanced AI features)`);
+  console.log(`   - /api/traffic    (Flight traffic analysis)`);
 });
 
 module.exports = app;
