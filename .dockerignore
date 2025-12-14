@@ -1,0 +1,51 @@
+# Node modules
+node_modules
+backend/node_modules
+frontend/node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Frontend (not needed for backend image)
+frontend/
+
+# Documentation
+docs/
+*.md
+!backend/README.md
+
+# Git
+.git
+.gitignore
+.github
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test-*.js
+*.test.js
+*.spec.js
+coverage/
+
+# Logs
+logs
+*.log
+
+# Railway config (not needed in image)
+railway.json
+railway.toml
+nixpacks.toml
