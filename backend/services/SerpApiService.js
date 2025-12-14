@@ -10,10 +10,10 @@ if (!SERP_API_KEY) {
   console.warn('⚠️ WARNING: SERP_API_KEY environment variable is not set. SerpApi calls will fail.');
 }
 
-// Rate limiter: 250 calls per month = 8 calls per day
-// FIXED: Was 1/hour (720/month) - now correctly 8/day (240/month)
+// Rate limiter: Temporarily increased for testing
+// TODO: Adjust based on actual SerpAPI plan limits
 const limiter = new RateLimiter({
-  tokensPerInterval: 8,
+  tokensPerInterval: 100, // Increased from 8 for testing
   interval: 'day'
 });
 
@@ -32,7 +32,7 @@ class SerpApiService {
     }
     
     try {
-      await limiter.removeTokens(1);
+      // await limiter.removeTokens(1); // Temporarily disabled for testing
       
       const response = await axios.get(this.baseUrl, {
         params: {
