@@ -411,13 +411,15 @@ router.get('/ai/orlando-deals', async (req, res) => {
         queries: searchQueries
       });
     } catch (timeoutError) {
-      console.log('SerpAPI timed out, returning fallback data');
+      console.error('SerpAPI error:', timeoutError.message);
+      console.error('Error stack:', timeoutError.stack);
       res.json({
         success: true,
         data: fallbackDeals,
         count: fallbackDeals.length,
         source: 'fallback_mock_data',
-        message: 'Using cached deals due to API timeout'
+        message: 'Using cached deals due to API timeout',
+        error_details: timeoutError.message // Include error for debugging
       });
     }
   } catch (error) {
