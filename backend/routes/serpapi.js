@@ -406,6 +406,61 @@ router.get('/light/travel-deals', async (req, res) => {
  * @desc    Get Orlando-specific deals using Google Light Search
  * @access  Public
  */
+// Alias for backward compatibility
+router.get('/orlando-deals', async (req, res) => {
+  try {
+    const searchQueries = [
+      'Universal Studios secret corporate promo codes Orlando',
+      'Disney World employee discount codes 2025',
+      'Orlando hotel secret deals promo codes',
+      'Florida theme park ticket discount hacks',
+      'Orlando car rental discount codes corporate',
+      'Disney World military discount codes',
+      'Universal Studios annual pass discount codes',
+      'Orlando restaurant coupon codes deals'
+    ];
+
+    const allDeals = [];
+    
+    for (const query of searchQueries) {
+      try {
+        const results = await serpApiService.searchLight({ q: query });
+        if (results && results.organic_results) {
+          results.organic_results.forEach(item => {
+            if (item.snippet && item.snippet.length > 30) {
+              allDeals.push({
+                title: item.title,
+                snippet: item.snippet,
+                link: item.link,
+                position: item.position,
+                query: query,
+                source: 'serpapi_google_light_orlando',
+                timestamp: new Date().toISOString(),
+                confidence: 0.85
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.error(`Failed to process query: ${query}`, error.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      data: allDeals,
+      query: 'orlando_deals_aggregated',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Orlando deals search error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 router.get('/light/orlando-deals', async (req, res) => {
   try {
     const searchQueries = [
