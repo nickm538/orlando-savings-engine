@@ -104,7 +104,15 @@ router.get('/hotels/orlando', async (req, res) => {
       sortBy: sortBy || sort_by ? parseInt(sortBy || sort_by) : undefined
     };
 
-    const results = await serpApiService.searchOrlandoHotels(searchOptions);
+    // Add timeout wrapper to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Search timeout - using fallback data')), 15000)
+    );
+    
+    const results = await Promise.race([
+      serpApiService.searchOrlandoHotels(searchOptions),
+      timeoutPromise
+    ]);
     const processedResults = serpApiService.processHotelResults(results);
 
     res.json({
