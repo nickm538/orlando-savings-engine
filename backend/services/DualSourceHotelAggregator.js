@@ -56,7 +56,8 @@ class DualSourceHotelAggregator {
     const mergedHotels = this.mergeHotels(serpHotels, amadeusHotels);
 
     // Detect price errors across all hotels
-    const hotelsWithErrors = this.priceErrorDetector.batchAnalyze(mergedHotels);
+    const errorAnalysis = this.priceErrorDetector.batchAnalyze(mergedHotels);
+    const hotelsWithErrors = mergedHotels; // Use all hotels, error info is in errorAnalysis
 
     // Rank hotels by savings potential
     const rankedHotels = this.rankHotelsBySavings(hotelsWithErrors);
@@ -67,7 +68,7 @@ class DualSourceHotelAggregator {
         totalHotels: rankedHotels.length,
         serpApiCount: serpHotels.length,
         amadeusCount: amadeusHotels.length,
-        priceErrorsFound: hotelsWithErrors.filter(h => h.priceError).length,
+        priceErrorsFound: errorAnalysis.errorsDetected,
         exclusiveRates: rankedHotels.filter(h => h.exclusiveToSource).length,
         averageSavings: this.calculateAverageSavings(rankedHotels),
         bestDeal: rankedHotels[0] || null
