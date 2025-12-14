@@ -5,6 +5,7 @@ import { useSerpApi } from '../contexts/SerpApiContext';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
+  // Quick search with navigation to hotels page
   const navigate = useNavigate();
   const { isSearching, performSearch } = useSearch();
   const { searchOrlandoDeals, insights } = useSerpApi();
