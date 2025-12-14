@@ -13,3 +13,4 @@ root.render(
   </React.StrictMode>
 );
 // Trigger rebuild Sun Dec 14 01:44:09 EST 2025
+// Trigger rebuild with env vars
