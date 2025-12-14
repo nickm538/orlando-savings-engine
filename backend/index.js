@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
@@ -120,7 +121,6 @@ app.use('/api/traffic', trafficRoutes);
 // Serve frontend static files
 const frontendPath = path.join(__dirname, '../frontend/build');
 console.log('Frontend path:', frontendPath);
-const fs = require('fs');
 if (fs.existsSync(frontendPath)) {
   console.log('Frontend build directory exists');
   app.use(express.static(frontendPath));
