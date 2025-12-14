@@ -17,7 +17,7 @@ class FlightTrafficAnalyzer {
   constructor(amadeusApiKey, amadeusApiSecret) {
     this.apiKey = amadeusApiKey;
     this.apiSecret = amadeusApiSecret;
-    this.baseUrl = 'https://test.api.amadeus.com/v1';
+    this.baseUrl = process.env.AMADEUS_API_BASE || 'https://api.amadeus.com/v1'; // Use production API
     this.accessToken = null;
     this.tokenExpiry = null;
 
@@ -52,7 +52,7 @@ class FlightTrafficAnalyzer {
 
     try {
       const response = await axios.post(
-        'https://test.api.amadeus.com/v1/security/oauth2/token',
+        process.env.AMADEUS_AUTH_URL || 'https://api.amadeus.com/v1/security/oauth2/token',
         new URLSearchParams({
           grant_type: 'client_credentials',
           client_id: this.apiKey,
